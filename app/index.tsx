@@ -1,21 +1,55 @@
 //නමෝ බුද්ධාය
-import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Text } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { Animated, Text, View } from "react-native";
+
+import { useRouter } from "expo-router";
 import "../global.css";
 
-const App = () => {
-	return (
-		<SafeAreaView className="flex-1 justify-center items-center">
-			<Text className="font-Outfit-Bold text-[40px]">Login with Google</Text>
-			<Text className="font-Outfit-Regular text-[40px] mt-3">
-				Login with Google
-			</Text>
-			<Text className="font-Outfit-SemiBold text-[40px] mt-3">
-				Login with Google
-			</Text>
-		</SafeAreaView>
-	);
-};
+export default function SplashScreen() {
+	const fadeAnim = useRef(new Animated.Value(0)).current;
+	const scaleAnim = useRef(new Animated.Value(0.5)).current;
+	const router = useRouter();
 
-export default App;
+	useEffect(() => {
+		Animated.parallel([
+			Animated.timing(fadeAnim, {
+				toValue: 1,
+				duration: 1000,
+				useNativeDriver: true,
+			}),
+			Animated.spring(scaleAnim, {
+				toValue: 1,
+				tension: 10,
+				friction: 2,
+				useNativeDriver: true,
+			}),
+		]).start();
+
+		const timer = setTimeout(() => {
+			router.replace("/auth");
+		}, 2000);
+
+		return () => clearTimeout(timer);
+	}, []);
+
+	return (
+		<View className="flex-1 bg-[#3F51B5] items-center justify-center">
+			<Animated.View
+				style={{ transform: [{ scale: scaleAnim }], opacity: fadeAnim }}
+			>
+				<Text className="text-white font-Outfit-Bold text-3xl">MedRemind</Text>
+			</Animated.View>
+		</View>
+	);
+}
+
+// const App = () => {
+// 	return (
+// 		<View className="flex-1">
+// 			<StatusBar barStyle="light-content" />
+// 			<AuthScreen />
+// 		</View>
+// 	);
+// };
+
+// export default App;
