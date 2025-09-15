@@ -1,7 +1,7 @@
 //නමෝ බුද්ධාය
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Animated, Text, View } from "react-native";
-
+import { useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import "../global.css";
 
@@ -9,6 +9,9 @@ export default function SplashScreen() {
 	const fadeAnim = useRef(new Animated.Value(0)).current;
 	const scaleAnim = useRef(new Animated.Value(0.5)).current;
 	const router = useRouter();
+	const { isLoaded, isSignedIn } = useAuth();
+	const [isSplashAnimationComplete, setSplashAnimationComplete] =
+		useState(false);
 
 	useEffect(() => {
 		Animated.parallel([
@@ -25,15 +28,23 @@ export default function SplashScreen() {
 			}),
 		]).start();
 
-		const timer = setTimeout(() => {
-			router.replace("/auth");
-		}, 2000);
+		const timer = setTimeout(() => setSplashAnimationComplete(true), 2000);
 
 		return () => clearTimeout(timer);
 	}, []);
 
+	useEffect(() => {
+		if (isLoaded && isSplashAnimationComplete) {
+			if (isSignedIn) {
+				router.replace("/home");
+			} else {
+				router.replace("/auth");
+			}
+		}
+	}, [isLoaded, isSplashAnimationComplete, isSignedIn, router]);
+
 	return (
-		<View className="flex-1 bg-[#3F51B5] items-center justify-center">
+		<View className="flex-1 bg-[#3F51B5] items-center  justify-center">
 			<Animated.View
 				style={{ transform: [{ scale: scaleAnim }], opacity: fadeAnim }}
 			>
@@ -42,14 +53,3 @@ export default function SplashScreen() {
 		</View>
 	);
 }
-
-// const App = () => {
-// 	return (
-// 		<View className="flex-1">
-// 			<StatusBar barStyle="light-content" />
-// 			<AuthScreen />
-// 		</View>
-// 	);
-// };
-
-// export default App;

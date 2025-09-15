@@ -3,8 +3,11 @@ import { useFonts } from "expo-font";
 import { Slot } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import { ClerkProvider } from "@clerk/clerk-expo";
+import { getToken, saveToken } from "@/lib/tokenCache";
 
 SplashScreen.preventAutoHideAsync();
+console.log("My Clerk Key is:", process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
 export default function RootLayout() {
 	const [loaded, error] = useFonts({
@@ -27,5 +30,12 @@ export default function RootLayout() {
 		return null;
 	}
 
-	return <Slot />;
+	return (
+		<ClerkProvider
+			publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}
+			tokenCache={{ getToken, saveToken }}
+		>
+			<Slot />
+		</ClerkProvider>
+	);
 }
