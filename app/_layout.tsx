@@ -7,7 +7,6 @@ import { ClerkProvider } from "@clerk/clerk-expo";
 import { getToken, saveToken } from "@/lib/tokenCache";
 
 SplashScreen.preventAutoHideAsync();
-console.log("My Clerk Key is:", process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
 export default function RootLayout() {
 	const [loaded, error] = useFonts({
