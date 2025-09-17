@@ -3,3 +3,4 @@ npm install expo-secure-store
 add clerk provider
 npm install @clerk/clerk-expo
 npx expo install react-native-svg
+npm install react-native-modal
