@@ -40,7 +40,7 @@ const CircularProgress = ({
 	return (
 		<View className="items-center justify-center my-3">
 			<View className="absolute z-10 items-center justify-center">
-				<Text className="font-Outfit-Bold text-white/85 text-3xl">
+				<Text className="font-Outfit-Bold text-white text-3xl">
 					{Math.round(progress * 100)}%
 				</Text>
 				<Text className="text- text-[rgba(255,255,255,0.9)] font-Outfit-Regular">

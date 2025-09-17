@@ -48,7 +48,7 @@ const AuthScreen = () => {
 	}, [router, startOAuthFlow]);
 
 	return (
-		<View className="flex-1 bg-[#3f51b5] justify-center items-center p-5">
+		<View className="flex-1 bg-[#1976D2] justify-center items-center p-5">
 			<StatusBar barStyle="light-content" />
 			<Image
 				source={require("../assets/images/app-icon/icon.png")}

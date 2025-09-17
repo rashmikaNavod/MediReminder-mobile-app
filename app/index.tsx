@@ -44,7 +44,7 @@ export default function SplashScreen() {
 	}, [isLoaded, isSplashAnimationComplete, isSignedIn, router]);
 
 	return (
-		<View className="flex-1 bg-[#3F51B5] items-center  justify-center">
+		<View className="flex-1 bg-[#1976D2] items-center  justify-center">
 			<Animated.View
 				style={{ transform: [{ scale: scaleAnim }], opacity: fadeAnim }}
 			>
