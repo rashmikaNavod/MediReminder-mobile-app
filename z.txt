@@ -5,3 +5,4 @@ npm install @clerk/clerk-expo
 npx expo install react-native-svg
 npm install react-native-modal
 npm i @react-native-community/datetimepicker
+npx expo install expo-crypto

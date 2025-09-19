@@ -16,6 +16,7 @@ import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
+import * as Crypto from "expo-crypto";
 
 const { width } = Dimensions.get("window");
 
@@ -67,9 +68,6 @@ const add = () => {
 		times: ["09:00"],
 		notes: "",
 		reminderEnabled: true,
-		refillReminder: false,
-		currentSupply: "",
-		refillAt: "",
 	});
 
 	const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -190,7 +188,23 @@ const add = () => {
 			if (isSubmitting) return;
 			setIsSubmitting(true);
 
-			console.log(form);
+			// Generate a random color
+			const colors = ["#4CAF50", "#2196F3", "#FF9800", "#E91E63", "#9C27B0"];
+			const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+			const medicationData = {
+				id: await Crypto.randomUUID(),
+				...form,
+				startDate: form.startDate.toISOString(),
+				color: randomColor,
+			};
+
+			// await addMedication(medicationData);
+
+			// Schedule reminders if enabled
+			// if (medicationData.reminderEnabled) {
+			// 	await scheduleMedicationReminder(medicationData);
+			// }
 
 			Alert.alert(
 				"Success",
@@ -246,7 +260,7 @@ const add = () => {
 					<View className="mb-[25px]">
 						<View style={style.inputContainer}>
 							<TextInput
-								className="placeholder:font-Outfit-Regular"
+								className="placeholder:font-Outfit-Regular "
 								style={[style.mainInput, errors.name && style.inputError]}
 								placeholder="Medication Name"
 								placeholderTextColor={"#999"}
@@ -403,7 +417,6 @@ const add = () => {
 						</View>
 					</View>
 
-					{/* Refill Tracking */}
 					{/* Notes */}
 					<View className="mb-[25px]">
 						<View style={style.textAreaContainer}>
@@ -473,6 +486,7 @@ const style = StyleSheet.create({
 		borderRadius: 16,
 		marginBottom: 12,
 		borderWidth: 1,
+		padding: 15,
 		borderColor: "#e0e0e0",
 		shadowColor: "#000",
 		shadowOffset: { width: 0, height: 2 },
@@ -483,7 +497,6 @@ const style = StyleSheet.create({
 	mainInput: {
 		fontSize: 20,
 		color: "#333",
-		padding: 15,
 	},
 	inputError: {
 		borderColor: "#FF5252",
@@ -491,8 +504,8 @@ const style = StyleSheet.create({
 	errorText: {
 		color: "#ff5252",
 		fontSize: 12,
-		marginTop: 4,
-		marginLeft: 12,
+		fontFamily: "Outfit-Regular",
+		marginTop: 5,
 	},
 	dateButton: {
 		flexDirection: "row",
@@ -514,6 +527,7 @@ const style = StyleSheet.create({
 		flexDirection: "row",
 		flexWrap: "wrap",
 		marginHorizontal: -5,
+		marginTop: 5,
 	},
 	optionCard: {
 		width: (width - 60) / 2,
@@ -605,6 +619,7 @@ const style = StyleSheet.create({
 	timeButtonText: {
 		flex: 1,
 		fontSize: 16,
+		fontFamily: "Outfit-Regular",
 		color: "#333",
 	},
 });
