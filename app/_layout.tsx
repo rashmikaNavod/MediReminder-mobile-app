@@ -5,6 +5,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { ClerkProvider } from "@clerk/clerk-expo";
 import { getToken, saveToken } from "@/lib/tokenCache";
+import "../global.css";
 
 SplashScreen.preventAutoHideAsync();
 

@@ -100,47 +100,8 @@ const HomeScreen = () => {
 	);
 };
 
-const styles = StyleSheet.create({
-	// modal: {
-	// 	justifyContent: "flex-end", // Modal එක පහළින්ම තියනවා
-	// 	margin: 0,
-	// },
-	// menuContent: {
-	// 	backgroundColor: "white",
-	// 	paddingVertical: 20,
-	// 	paddingHorizontal: 25,
-	// 	borderTopRightRadius: 20, // උඩින් corners ටික round කරනවා
-	// 	borderTopLeftRadius: 20,
-	// 	borderColor: "rgba(0, 0, 0, 0.1)",
-	// },
-});
+const styles = StyleSheet.create({});
 
 export default HomeScreen;
 
-// <View
-// 	style={{
-// 		flex: 1,
-// 		justifyContent: "center",
-// 		alignItems: "center",
-// 		padding: 20,
-// 	}}
-// >
-// 	{user?.imageUrl && (
-// 		<Image
-// 			source={{ uri: user.imageUrl }}
-// 			style={{
-// 				width: 100,
-// 				height: 100,
-// 				borderRadius: 50,
-// 				marginBottom: 20,
-// 			}}
-// 		/>
-// 	)}
-// 	<Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 20 }}>
-// 		Welcome, {user?.firstName}!
-// 	</Text>
-// 	<Text style={{ fontSize: 16, color: "gray", marginBottom: 40 }}>
-// 		{user?.primaryEmailAddress?.emailAddress}
-// 	</Text>
-// 	<Button title="Sign Out" onPress={() => signOut()} color="#f44336" />
-// </View>
+

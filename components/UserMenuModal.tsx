@@ -24,14 +24,21 @@ const UserMenuModal = ({
 	user,
 }: UserMenuModalProps) => {
 	return (
-		<Modal visible={visible} transparent={true} animationType="slide">
+		<Modal
+			visible={visible}
+			transparent={true}
+			animationType="slide"
+			statusBarTranslucent={true}
+		>
 			<View className="flex-1 bg-[rgba(0,0,0,0.5)] justify-end">
 				<View className="bg-white rounded-t-3xl p-5 max-h-[80%]">
-					<TouchableOpacity
-						className=" bg-black/25 rounded-full w-10 h-10 items-center justify-center ml-auto"
-						onPress={onClose}
-					>
-						<Ionicons name="close" size={25} color="#333" />
+					<TouchableOpacity onPress={onClose}>
+						<Ionicons
+							name="close"
+							size={25}
+							color="#333"
+							className="self-end"
+						/>
 					</TouchableOpacity>
 					<View className="items-center mb-6">
 						{user?.imageUrl && (

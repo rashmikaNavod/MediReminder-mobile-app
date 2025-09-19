@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { Animated, Text, View } from "react-native";
 import { useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
-import "../global.css";
 
 export default function SplashScreen() {
 	const fadeAnim = useRef(new Animated.Value(0)).current;

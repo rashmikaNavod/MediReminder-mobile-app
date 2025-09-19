@@ -18,7 +18,12 @@ interface NotificationModalProps {
 
 const NotificationModal = ({ visible, onClose }: NotificationModalProps) => {
 	return (
-		<Modal visible={visible} transparent={true} animationType="slide">
+		<Modal
+			visible={visible}
+			transparent={true}
+			animationType="slide"
+			statusBarTranslucent={true}
+		>
 			<View className="flex-1 bg-[rgba(0,0,0,0.5)] justify-end">
 				<View className="bg-white rounded-t-3xl p-5 max-h-[80%]">
 					<View className="flex-row justify-between items-center mb-5">

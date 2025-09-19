@@ -16,28 +16,28 @@ const QUICK_ACTIONS = [
 	{
 		icon: "add-circle-outline" as const,
 		label: "Add Medication",
-		route: "/medications/add" as const,
+		route: "/add" as const,
 		color: "#4CAF50",
 		gradient: ["#4CAF50", "#2E7D32"] as [string, string],
 	},
 	{
 		icon: "calendar-outline" as const,
 		label: "Calendar View",
-		route: "/calendar" as const,
+		route: "/" as const,
 		color: "#1976D2",
 		gradient: ["#2196F3", "#1976D2"] as [string, string],
 	},
 	{
 		icon: "time-outline" as const,
 		label: "History Log",
-		route: "/history" as const,
+		route: "/" as const,
 		color: "#E91E63",
 		gradient: ["#E91E63", "#C2185B"] as [string, string],
 	},
 	{
 		icon: "medical-outline" as const,
 		label: "Refill Tracker",
-		route: "/refills" as const,
+		route: "/" as const,
 		color: "#FF5722",
 		gradient: ["#FF5722", "#E64A19"] as [string, string],
 	},
@@ -51,7 +51,7 @@ const QuickAction = () => {
 			</Text>
 			<View className="mt-4 gap-5">
 				{QUICK_ACTIONS.map((action) => (
-					<Link href={"/"} key={action.label} asChild>
+					<Link href={action.route} key={action.label} asChild>
 						<TouchableOpacity>
 							<View
 								className="p-4 rounded-xl flex-row w-ful items-center gap-4"
