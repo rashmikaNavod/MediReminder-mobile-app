@@ -10,13 +10,15 @@ import {
 	Switch,
 	SafeAreaView,
 	Alert,
+	ActivityIndicator,
 } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
-import * as Crypto from "expo-crypto";
+import { useAuth } from "@clerk/clerk-expo";
+import { useMedicationStore } from "@/store/useMedicationStore";
 
 const { width } = Dimensions.get("window");
 
@@ -58,6 +60,12 @@ const DURATIONS = [
 
 const add = () => {
 	const router = useRouter();
+	const { userId } = useAuth();
+	const { loading, addMedication } = useMedicationStore();
+
+	useEffect(() => {
+		console.log(userId);
+	});
 
 	const [form, setForm] = useState({
 		name: "",
@@ -75,7 +83,6 @@ const add = () => {
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const [selectedFrequency, setSelectedFrequency] = useState("");
 	const [selectedDuration, setSelectedDuration] = useState("");
-	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const renderFrequencyOptions = () => {
 		return (
@@ -179,27 +186,28 @@ const add = () => {
 	};
 
 	const handleSave = async () => {
+		if (!userId) {
+			Alert.alert("Error", "User not authenticated");
+			return;
+		}
+
+		if (!validateForm()) {
+			Alert.alert("Error", "Please fill in all required fields correctly");
+			return;
+		}
+
 		try {
-			if (!validateForm()) {
-				Alert.alert("Error", "Please fill in all required fields correctly");
-				return;
-			}
-
-			if (isSubmitting) return;
-			setIsSubmitting(true);
-
 			// Generate a random color
 			const colors = ["#4CAF50", "#2196F3", "#FF9800", "#E91E63", "#9C27B0"];
 			const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
 			const medicationData = {
-				id: await Crypto.randomUUID(),
 				...form,
 				startDate: form.startDate.toISOString(),
 				color: randomColor,
 			};
 
-			// await addMedication(medicationData);
+			await addMedication(userId, medicationData);
 
 			// Schedule reminders if enabled
 			// if (medicationData.reminderEnabled) {
@@ -225,8 +233,6 @@ const add = () => {
 				[{ text: "OK" }],
 				{ cancelable: false }
 			);
-		} finally {
-			setIsSubmitting(false);
 		}
 	};
 
@@ -437,21 +443,34 @@ const add = () => {
 				{/* Add button */}
 				<View className=" p-5 bg-white border-t border-t-[#e0e0e0]">
 					<TouchableOpacity
-						className={`rounded-2xl mb-3 overflow-hidden`}
-						disabled={isSubmitting}
+						className={`rounded-lg mb-3 bg-[#1976D2] py-4 flex-row items-center justify-center ${loading ? "opacity-70" : ""}`}
+						disabled={loading}
 						onPress={handleSave}
 					>
-						<View className="bg-[#1976D2] py-4 items-center justify-center">
-							<Text className="text-white font-Outfit-Bold text-lg">
-								{isSubmitting ? "Adding..." : "Add Medication"}
-							</Text>
-						</View>
+						{loading ? (
+							<>
+								<ActivityIndicator
+									size="small"
+									color="white"
+									style={{ marginRight: 12 }}
+								/>
+								<Text className="text-white font-Outfit-Bold text-lg">
+									Adding...
+								</Text>
+							</>
+						) : (
+							<>
+								<Text className="text-white font-Outfit-Bold text-lg">
+									Add Medication
+								</Text>
+							</>
+						)}
 					</TouchableOpacity>
 
 					<TouchableOpacity
-						className="py-4 rounded-2xl border border-[#e0e0e0] justify-center items-center bg-white"
+						className="py-4 rounded-lg border border-[#e0e0e0] justify-center items-center bg-white"
 						onPress={() => router.back()}
-						disabled={isSubmitting}
+						disabled={loading}
 					>
 						<Text className="text-[#666] font-Outfit-Bold text-lg">Cancel</Text>
 					</TouchableOpacity>
