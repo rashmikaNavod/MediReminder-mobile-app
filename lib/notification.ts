@@ -2,12 +2,21 @@ import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import type { Medication } from "@/types/Medication";
 
+//This array is needed to find the numeric value of the duration
+const DURATIONS = [
+	{ id: "1", label: "7 days", value: 7 },
+	{ id: "2", label: "14 days", value: 14 },
+	{ id: "3", label: "30 days", value: 30 },
+	{ id: "4", label: "90 days", value: 90 },
+	{ id: "5", label: "Ongoing", value: -1 },
+];
+
 Notifications.setNotificationHandler({
 	handleNotification: async () => ({
 		shouldPlaySound: true,
 		shouldSetBadge: true,
 		shouldShowBanner: true,
-		shouldShowList: true
+		shouldShowList: true,
 	}),
 });
 
@@ -31,105 +40,103 @@ export async function registerForPushNotificationsAsync() {
 
 	if (finalStatus !== "granted") {
 		alert("Failed to get permission for notifications!");
-		return false; 
+		return false;
 	}
 
 	console.log("Notification permissions have been granted.");
 	return true;
 }
 
+export const scheduleMedicationReminder = async (medication: Medication) => {
+	if (
+		!medication.reminderEnabled ||
+		!Array.isArray(medication.times) ||
+		medication.times.length === 0
+	) {
+		return;
+	}
 
+	// Clear any previously scheduled notifications for this medication to avoid duplicates.
+	if (medication.id) {
+		const allScheduled =
+			await Notifications.getAllScheduledNotificationsAsync();
+		for (const notification of allScheduled) {
+			if (notification.identifier.startsWith(`med-reminder-${medication.id}`)) {
+				await Notifications.cancelScheduledNotificationAsync(
+					notification.identifier
+				);
+				console.log(`Cancelled existing reminder: ${notification.identifier}`);
+			}
+		}
+	}
 
-export async function scheduleNotificationHandler(title: string, body: string, second: number) {
-  console.log(`Scheduling notification: "${title}" in ${second} seconds.`);
-  
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: title,
-      body: body,
-    },
-    trigger: {
-			type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-			seconds: second
-		},
-  });
+	// Find the duration object from the DURATIONS array
+	const durationInfo = DURATIONS.find((d) => d.label === medication.duration);
+	if (!durationInfo) {
+		console.error("Invalid duration label provided.");
+		return;
+	}
 
-}
+	const startDate = new Date(medication.startDate);
 
-// export async function registerForPushNotificationsAsync(): Promise<
-// 	string | null
-// > {
-// 	let token: string | null = null;
+	//Case 1: The duration is "Ongoing"
+	if (durationInfo.value === -1) {
+		for (const [index, time] of medication.times.entries()) {
+			const [hour, minute] = time.split(":").map(Number);
 
-// 	const { status: existingStatus } = await Notifications.getPermissionsAsync();
-// 	let finalStatus = existingStatus;
+			await Notifications.scheduleNotificationAsync({
+				identifier: `med-reminder-${medication.id}-${index}`,
+				content: {
+					title: "💊 බෙහෙත් වෙලාව!",
+					body: `ඔබේ ${medication.name} (${medication.dosage}) ලබා ගැනීමට කාලයයි.`,
+					sound: "default",
+				},
+				trigger: {
+					hour: hour,
+					minute: minute,
+					type: Notifications.SchedulableTriggerInputTypes.DAILY,
+				},
+			});
+		}
+		console.log("Successfully scheduled ongoing reminders.");
+		return;
+	}
 
-// 	if (existingStatus !== "granted") {
-// 		const { status } = await Notifications.requestPermissionsAsync();
-// 		finalStatus = status;
-// 	}
+	//Case 2: The duration is fixed number of days
+	const numberOfDay = durationInfo.value;
 
-// 	if (finalStatus !== "granted") return null;
+	//Calculate the end date
+	const endDate = new Date(startDate);
+	endDate.setDate(startDate.getDate() + numberOfDay);
 
-// 	try {
-// 		const response = await Notifications.getExpoPushTokenAsync();
-// 		token = response.data;
+	//Loop through each day from the start date until the end date
+	let dayIndex = 0;
+	for (let d = new Date(startDate); d < endDate; d.setDate(d.getDate() + 1)) {
+		for (const [index, time] of medication.times.entries()) {
+			const [hour, minute] = time.split(":").map(Number);
 
-// 		if (Platform.OS === "android") {
-// 			await Notifications.setNotificationChannelAsync("default", {
-// 				name: "default",
-// 				importance: Notifications.AndroidImportance.MAX,
-// 				vibrationPattern: [0, 250, 250, 250],
-// 				lightColor: "#1a8e2d",
-// 			});
-// 		}
+			const triggerDate = new Date(d);
+			triggerDate.setHours(hour, minute, 0, 0);
 
-// 		return token;
-// 	} catch (error) {
-// 		console.error("Error getting push token:", error);
-// 		return null;
-// 	}
-// }
+			if (triggerDate > new Date()) {
+				await Notifications.scheduleNotificationAsync({
+					identifier: `med-reminder-${medication.id}-${index}`,
+					content: {
+						title: "💊 බෙහෙත් වෙලාව!",
+						body: `ඔබේ ${medication.name} (${medication.dosage}) ලබා ගැනීමට කාලයයි.`,
+						sound: "default",
+					},
+					trigger: {
+						type: Notifications.SchedulableTriggerInputTypes.DATE,
+						date: triggerDate,
+					},
+				});
+			}
+		}
+		dayIndex++;
+	}
 
-// export async function scheduleMedicationReminder(
-// 	medication: Medication
-// ): Promise<string[]> {
-// 	if (!medication.reminderEnabled || !Array.isArray(medication.times)) {
-// 		return [];
-// 	}
-
-// 	try {
-// 		const identifiers: string[] = [];
-
-// 		for (const time of medication.times) {
-// 			if (!time) continue;
-
-// 			const [h, m] = time.split(":");
-// 			const hours = parseInt(h, 10);
-// 			const minutes = parseInt(m, 10);
-
-// 			if (isNaN(hours) || isNaN(minutes)) continue;
-
-// 			const identifier = await Notifications.scheduleNotificationAsync({
-// 				content: {
-// 					title: "Medication Reminder",
-// 					body: `Time to take ${medication.name} (${medication.dosage})`,
-// 					data: { medicationId: medication.id },
-// 				},
-// 				trigger: {
-// 					type: "calendar",
-// 					hour: hours,
-// 					minute: minutes,
-// 					repeats: true,
-// 				} as Notifications.CalendarTriggerInput,
-// 			});
-
-// 			identifiers.push(identifier);
-// 		}
-
-// 		return identifiers;
-// 	} catch (error) {
-// 		console.error("Error scheduling medication reminder:", error);
-// 		return [];
-// 	}
-// }
+	console.log(
+		`Successfully scheduled ${dayIndex * medication.times.length} individual reminders.`
+	);
+};

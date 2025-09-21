@@ -21,6 +21,7 @@ import { useAuth } from "@clerk/clerk-expo";
 import { useMedicationStore } from "@/store/useMedicationStore";
 // import { scheduleMedicationReminder } from "@/lib/notification";
 import { Medication } from "@/types/Medication";
+import { scheduleMedicationReminder } from "@/lib/notification";
 
 const { width } = Dimensions.get("window");
 
@@ -212,9 +213,9 @@ const add = () => {
 
 			const newMedication = await addMedication(userId, medicationData);
 
-			// if (newMedication && newMedication.reminderEnabled) {
-			// 	await scheduleMedicationReminder(newMedication);
-			// }
+			if (newMedication && newMedication.reminderEnabled) {
+				await scheduleMedicationReminder(newMedication);
+			}
 
 			Alert.alert(
 				"Success",
@@ -341,7 +342,10 @@ const add = () => {
 								value={form.startDate}
 								onChange={(event, date) => {
 									setShowDatePicker(false);
-									if (date) setForm({ ...form, startDate: date });
+									if (date) {
+										date.setHours(12, 0, 0, 0);
+										setForm({ ...form, startDate: date });
+									}
 								}}
 							/>
 						)}

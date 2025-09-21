@@ -20,10 +20,7 @@ import {
 	Alert,
 } from "react-native";
 
-import {
-	registerForPushNotificationsAsync,
-	scheduleNotificationHandler,
-} from "@/lib/notification";
+import { registerForPushNotificationsAsync } from "@/lib/notification";
 
 const { width } = Dimensions.get("window");
 
@@ -44,15 +41,6 @@ const HomeScreen = () => {
 	useEffect(() => {
 		registerForPushNotificationsAsync();
 	}, []);
-
-	const handleTestNotification = () => {
-		scheduleNotificationHandler(
-			"💊 බෙහෙත් වෙලාව!",
-			"Test Notification එකක්. තත්පර 5කින් පෙනී සිටීවි.",
-			5
-		);
-		Alert.alert("Success", "MED add successfull");
-	};
 
 	return (
 		<View className="flex-1 bg-[#f8f9fa] relative">
@@ -118,12 +106,6 @@ const HomeScreen = () => {
 				user={user}
 				onSignOut={handleSignOut}
 			/>
-
-			<View
-				style={{ position: "absolute", bottom: 120, right: 20, zIndex: 100 }}
-			>
-				<Button title="Test Notification" onPress={handleTestNotification} />
-			</View>
 		</View>
 	);
 };
