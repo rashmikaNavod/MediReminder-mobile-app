@@ -140,3 +140,27 @@ export const scheduleMedicationReminder = async (medication: Medication) => {
 		`Successfully scheduled ${dayIndex * medication.times.length} individual reminders.`
 	);
 };
+
+export const cancelMedicationReminders = async (medicationId: string) => {
+	if (!medicationId) return;
+
+	try {
+		const allScheduled =
+			await Notifications.getAllScheduledNotificationsAsync();
+		let cancelledCount = 0;
+
+		for (const notification of allScheduled) {
+			if (notification.identifier.startsWith(`med-reminder-${medicationId}`)) {
+				await Notifications.cancelScheduledNotificationAsync(
+					notification.identifier
+				);
+				cancelledCount++;
+			}
+		}
+		console.log(
+			`Cancelled ${cancelledCount} reminders for medication ID: ${medicationId}`
+		);
+	} catch (error) {
+		console.error("Failed to cancel notifications:", error);
+	}
+};

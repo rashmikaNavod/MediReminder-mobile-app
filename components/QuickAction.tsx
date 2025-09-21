@@ -30,14 +30,14 @@ const QUICK_ACTIONS = [
 	{
 		icon: "time-outline" as const,
 		label: "Delete Medication",
-		route: "/" as const,
+		route: "/delete" as const,
 		color: "#E91E63",
 		gradient: ["#E91E63", "#C2185B"] as [string, string],
 	},
 	{
 		icon: "medical-outline" as const,
 		label: "Update Medication",
-		route: "/" as const,
+		route: "/update" as const,
 		color: "#FF5722",
 		gradient: ["#FF5722", "#E64A19"] as [string, string],
 	},

@@ -257,7 +257,7 @@ const add = () => {
 						style={style.buttonShadow}
 						onPress={() => router.back()}
 					>
-						<Ionicons name="chevron-back" size={28} color={"#1a8e2d"} />
+						<Ionicons name="chevron-back" size={28} color={"#1976D2"} />
 					</TouchableOpacity>
 					<Text className="text-[28px] font-Outfit-Bold text-white ml-4">
 						New Medication
