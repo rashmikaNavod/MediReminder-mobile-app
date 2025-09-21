@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import type { Medication } from "@/types/Medication";
 
+
 interface MedicationState {
 	medications: Medication[];
 	loading: boolean;
@@ -17,7 +18,7 @@ interface MedicationState {
 	addMedication: (
 		userId: string,
 		medications: Omit<Medication, "id">
-	) => Promise<void>;
+	) => Promise<Medication | undefined>;
 	fetchMedication: (userId: string) => Promise<void>;
 }
 
@@ -41,12 +42,13 @@ export const useMedicationStore = create<MedicationState>((set) => ({
 			const newMedication: Medication = {
 				id: docref.id,
 				...medicationData,
-			};
+			} as Medication;
 
 			set((prevState) => ({
 				loading: false,
 				medications: [...prevState.medications, newMedication],
 			}));
+			return newMedication;
 		} catch (e) {
 			const error = e as Error; // Type assertion
 			set({ loading: false, error: error.message });

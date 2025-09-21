@@ -19,6 +19,8 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
 import { useMedicationStore } from "@/store/useMedicationStore";
+// import { scheduleMedicationReminder } from "@/lib/notification";
+import { Medication } from "@/types/Medication";
 
 const { width } = Dimensions.get("window");
 
@@ -65,7 +67,7 @@ const add = () => {
 
 	useEffect(() => {
 		console.log(userId);
-	});
+	}, [userId]);
 
 	const [form, setForm] = useState({
 		name: "",
@@ -73,7 +75,7 @@ const add = () => {
 		frequency: "",
 		duration: "",
 		startDate: new Date(),
-		times: ["09:00"],
+		times: ["07:00"],
 		notes: "",
 		reminderEnabled: true,
 	});
@@ -83,6 +85,7 @@ const add = () => {
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const [selectedFrequency, setSelectedFrequency] = useState("");
 	const [selectedDuration, setSelectedDuration] = useState("");
+	const [timePickerIndex, setTimePickerIndex] = useState(0);
 
 	const renderFrequencyOptions = () => {
 		return (
@@ -96,7 +99,7 @@ const add = () => {
 						]}
 						onPress={() => {
 							setSelectedFrequency(freq.label);
-							setForm({ ...form, frequency: freq.label });
+							setForm({ ...form, frequency: freq.label, times: freq.times });
 						}}
 					>
 						<View
@@ -207,11 +210,10 @@ const add = () => {
 				color: randomColor,
 			};
 
-			await addMedication(userId, medicationData);
+			const newMedication = await addMedication(userId, medicationData);
 
-			// Schedule reminders if enabled
-			// if (medicationData.reminderEnabled) {
-			// 	await scheduleMedicationReminder(medicationData);
+			// if (newMedication && newMedication.reminderEnabled) {
+			// 	await scheduleMedicationReminder(newMedication);
 			// }
 
 			Alert.alert(
@@ -355,6 +357,7 @@ const add = () => {
 										style={style.timeButton}
 										onPress={() => {
 											setShowTimePicker(true);
+											setTimePickerIndex(index);
 										}}
 									>
 										<View style={style.timeIconContainer}>
@@ -386,7 +389,9 @@ const add = () => {
 										});
 										setForm((prev) => ({
 											...prev,
-											times: prev.times.map((t, i) => (i === 0 ? newTime : t)),
+											times: prev.times.map((time, index) =>
+												index === timePickerIndex ? newTime : time
+											),
 										}));
 									}
 								}}

@@ -3,9 +3,10 @@ import NotificationModal from "@/components/NotificationModal";
 import QuickAction from "@/components/QuickAction";
 import TodaySchedule from "@/components/TodaySchedule";
 import UserMenuModal from "@/components/UserMenuModal";
+import { useMedicationStore } from "@/store/useMedicationStore";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
 	View,
 	Text,
@@ -15,21 +16,42 @@ import {
 	Dimensions,
 	Modal,
 	StyleSheet,
+	Button,
+	Alert,
 } from "react-native";
+
+import {
+	registerForPushNotificationsAsync,
+	scheduleNotificationHandler,
+} from "@/lib/notification";
 
 const { width } = Dimensions.get("window");
 
 const HomeScreen = () => {
 	const { user } = useUser();
-	const { signOut } = useAuth();
+	const { signOut, userId } = useAuth();
 	const [showNotifications, setShowNotifications] = useState(false);
 	const [isMenuVisible, setMenuVisible] = useState(false);
+	const { fetchMedication, medications, loading, error } = useMedicationStore();
 	const toggleMenu = () => {
 		setMenuVisible(!isMenuVisible);
 	};
 	const handleSignOut = () => {
 		toggleMenu();
 		signOut();
+	};
+
+	useEffect(() => {
+		registerForPushNotificationsAsync();
+	}, []);
+
+	const handleTestNotification = () => {
+		scheduleNotificationHandler(
+			"💊 බෙහෙත් වෙලාව!",
+			"Test Notification එකක්. තත්පර 5කින් පෙනී සිටීවි.",
+			5
+		);
+		Alert.alert("Success", "MED add successfull");
 	};
 
 	return (
@@ -96,6 +118,12 @@ const HomeScreen = () => {
 				user={user}
 				onSignOut={handleSignOut}
 			/>
+
+			<View
+				style={{ position: "absolute", bottom: 120, right: 20, zIndex: 100 }}
+			>
+				<Button title="Test Notification" onPress={handleTestNotification} />
+			</View>
 		</View>
 	);
 };
