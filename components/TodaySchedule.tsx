@@ -2,8 +2,9 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { Medication } from "@/types/Medication";
 
-const TodaySchedule = () => {
+const TodaySchedule = ({ medications }: { medications: Medication[] }) => {
 	return (
 		<View className="px-5 mb-6">
 			<View className="flex-row justify-between items-center mb-3">
@@ -18,13 +19,13 @@ const TodaySchedule = () => {
 					</TouchableOpacity>
 				</Link>
 			</View>
-			{true ? (
+			{medications.length === 0 ? (
 				<View className="items-center p-7 bg-white rounded-2xl mt-2">
 					<Ionicons name="medical-outline" size={48} color="#ccc" />
 					<Text className="text-base font-Outfit-Regular text-[#666] mt-3 mb-5">
 						No Medications Scheduled today
 					</Text>
-					<Link href={"/"}>
+					<Link href={"/add"}>
 						<TouchableOpacity className="bg-[#1976D2] px-5 py-3 rounded-xl">
 							<Text className="font-Outfit-SemiBold text-white">
 								Add Medication
@@ -33,25 +34,33 @@ const TodaySchedule = () => {
 					</Link>
 				</View>
 			) : (
-				[].map((medi) => {
+				medications.map((medi) => {
 					return (
 						<View
+							key={medi.id}
 							className="flex-row items-center bg-white rounded-2xl p-4 mb-3"
 							style={styles.cardShadow}
 						>
-							<View className="w-[50px] h-[50px] rounded-3xl justify-center items-center mr-4">
-								<Ionicons name="medical" size={24} />
+							<View
+								style={[
+									styles.doseBadge,
+									{ backgroundColor: `${medi.color}15` },
+								]}
+							>
+								<Ionicons name="medical" size={24} color={medi.color} />
 							</View>
 							<View className="flex-1 justify-between">
-								<View>
+								<View className="flex-1 justify-between">
 									<Text className="text-base font-Outfit-SemiBold text-[#333] mb-1">
-										name
+										{medi.name}
 									</Text>
-									<Text className="text-[14px] text-[#666] mb-1">dosage</Text>
+									<Text className="text-[14px] text-[#666] mb-1">
+										{medi.dosage}
+									</Text>
 								</View>
 								<View className="flex-row items-center">
 									<Ionicons name="time-outline" size={16} color="#ccc" />
-									<Text className="ml-1 text-[#666] text-[14px]">time</Text>
+									<Text className="ml-1 text-[#666] text-[14px]"></Text>
 								</View>
 							</View>
 							{false ? (
@@ -89,6 +98,14 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.05,
 		shadowRadius: 8,
 		elevation: 3,
+	},
+	doseBadge: {
+		width: 50,
+		height: 50,
+		borderRadius: 25,
+		justifyContent: "center",
+		alignItems: "center",
+		marginRight: 15,
 	},
 });
 

@@ -20,7 +20,16 @@ import {
 	Alert,
 } from "react-native";
 
+const DURATIONS = [
+	{ id: "1", label: "7 days", value: 7 },
+	{ id: "2", label: "14 days", value: 14 },
+	{ id: "3", label: "30 days", value: 30 },
+	{ id: "4", label: "90 days", value: 90 },
+	{ id: "5", label: "Ongoing", value: -1 },
+];
+
 import { registerForPushNotificationsAsync } from "@/lib/notification";
+import { Medication } from "@/types/Medication";
 
 const { width } = Dimensions.get("window");
 
@@ -29,7 +38,43 @@ const HomeScreen = () => {
 	const { signOut, userId } = useAuth();
 	const [showNotifications, setShowNotifications] = useState(false);
 	const [isMenuVisible, setMenuVisible] = useState(false);
-	const { fetchMedication, medications, loading, error } = useMedicationStore();
+
+	const { fetchMedication, medications } = useMedicationStore();
+	const [todaysMedications, setTodaysMedications] = useState<Medication[]>([]);
+	const [completedDoses, setCompletedDoses] = useState(0);
+
+
+
+	const handleHomePage = () => {
+		const today = new Date();
+		const todayMed = medications.filter((med) => {
+			const startDate = new Date(med.startDate);
+			const durationInfo = DURATIONS.find((d) => d.label === med.duration);
+			if(durationInfo?.value === undefined) return false;
+			if (
+				durationInfo.value === -1 ||
+				(today >= startDate && today <= new Date(startDate.getTime() + durationInfo.value * 24 * 60 * 60 * 1000))
+			) {
+				return true;
+			}
+			return false;
+		});
+
+		setTodaysMedications(todayMed);
+		// setCompletedDoses(todayMed.filter((m) => m.taken)?.length || 0);
+	};
+
+	useEffect(() => {
+		if (userId) {
+			fetchMedication(userId).then(() => {
+				handleHomePage();
+			});
+		}
+	}, [userId, medications]);
+
+	
+
+
 	const toggleMenu = () => {
 		setMenuVisible(!isMenuVisible);
 	};
@@ -64,23 +109,25 @@ const HomeScreen = () => {
 									numberOfLines={1}
 									className="text-[11px] font-Outfit-SemiBold text-white leading-[13px] text-center"
 								>
-									14
+									{todaysMedications.length}
 								</Text>
 							</View>
 						</TouchableOpacity>
 					</View>
 
 					<CircularProgress
-						progress={0.86}
-						totalDoses={5}
-						completedDoses={4}
+						progress={
+							0.7
+						}
+						totalDoses={todaysMedications.length}
+						completedDoses={3}
 						width={width}
 					/>
 				</View>
 
 				<QuickAction />
 
-				<TodaySchedule />
+				<TodaySchedule medications={todaysMedications}/>
 
 				<NotificationModal
 					visible={showNotifications}
