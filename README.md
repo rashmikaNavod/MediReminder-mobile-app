@@ -7,7 +7,7 @@ A simple, privacy‑friendly mobile app to **add medicines**, set **reminders**,
 ## 📦 Demo & Downloads
 
 - **APK (Android)**: 👉 _Add your Google Drive link here_ → **[Drive APK Link](https://drive.google.com/drive/folders/1UHFrpF7-9rL5wZh7g4iyds9Cjur6v-qX?usp=sharing)**
-- **YouTube Demo**: 👉 **[Watch the video](https://youtu.be/your-video-id)**
+- **YouTube Demo**: 👉 **[Watch the video](https://youtu.be/EE3IrfKpAdw)**
 
 ---
 
