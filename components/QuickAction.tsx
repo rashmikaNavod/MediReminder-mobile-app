@@ -29,18 +29,18 @@ const QUICK_ACTIONS = [
 	},
 	{
 		icon: "time-outline" as const,
-		label: "Delete Medication",
-		route: "/delete" as const,
-		color: "#E91E63",
+		label: "Manage Medication",
+		route: "/manage" as const,
+		color: "#FF5722",
 		gradient: ["#E91E63", "#C2185B"] as [string, string],
 	},
-	{
-		icon: "medical-outline" as const,
-		label: "Update Medication",
-		route: "/update" as const,
-		color: "#FF5722",
-		gradient: ["#FF5722", "#E64A19"] as [string, string],
-	},
+	// {
+	// 	icon: "medical-outline" as const,
+	// 	label: "Update Medication",
+	// 	route: "/update" as const,
+	// 	color: "#FF5722",
+	// 	gradient: ["#FF5722", "#E64A19"] as [string, string],
+	// },
 ];
 
 const QuickAction = () => {

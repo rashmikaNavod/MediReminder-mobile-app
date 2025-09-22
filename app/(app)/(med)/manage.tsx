@@ -17,7 +17,7 @@ import { useAuth } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import { cancelMedicationReminders } from "@/lib/notification";
 
-const DeleteMedicationPage = () => {
+const manageMedicationPage = () => {
 	const router = useRouter();
 	const { userId } = useAuth();
 	const { medications, deleteMedication, loading, fetchMedication } =
@@ -71,7 +71,7 @@ const DeleteMedicationPage = () => {
 						<Ionicons name="chevron-back" size={28} color={"#1976D2"} />
 					</TouchableOpacity>
 					<Text className="text-[28px] font-Outfit-Bold text-white ml-4">
-						Delete Medication
+						Manage Medication
 					</Text>
 				</View>
 
@@ -102,13 +102,22 @@ const DeleteMedicationPage = () => {
 										{med.dosage}
 									</Text>
 								</View>
-								<TouchableOpacity
-									onPress={() => handleDelete(med.id, med.name)}
-									className="p-3 bg-[rgba(255,255,255,0.3)] rounded-full"
-									disabled={loading}
-								>
-									<Ionicons name="trash-outline" size={24} color="white" />
-								</TouchableOpacity>
+								<View className="flex-row gap-3">
+									<TouchableOpacity
+										onPress={() => router.push(`/update?id=${med.id}`)}
+										className="p-3 bg-[rgba(255,255,255,0.3)] rounded-full"
+										disabled={loading}
+									>
+										<Ionicons name="create-outline" size={24} color="white" />
+									</TouchableOpacity>
+									<TouchableOpacity
+										onPress={() => handleDelete(med.id, med.name)}
+										className="p-3 bg-[rgba(255,255,255,0.3)] rounded-full"
+										disabled={loading}
+									>
+										<Ionicons name="trash-outline" size={24} color="white" />
+									</TouchableOpacity>
+								</View>
 							</View>
 						))
 					) : (
@@ -151,4 +160,4 @@ const style = StyleSheet.create({
 	},
 });
 
-export default DeleteMedicationPage;
+export default manageMedicationPage;

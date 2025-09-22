@@ -21,7 +21,6 @@ import { useMedicationStore } from "@/store/useMedicationStore";
 import { scheduleMedicationReminder } from "@/lib/notification";
 import { Medication } from "@/types/Medication";
 
-// Form state එකේ type එක define කරනවා
 type MedicationFormData = Omit<Medication, "startDate"> & {
 	startDate: Date;
 };
@@ -63,7 +62,7 @@ const DURATIONS = [
 	{ id: "5", label: "Ongoing", value: -1 },
 ];
 
-const Update = () => {
+const UpdateMedicationPage = () => {
 	const router = useRouter();
 	const { userId } = useAuth();
 	const { id: medicationId } = useLocalSearchParams<{ id: string }>();
@@ -75,15 +74,9 @@ const Update = () => {
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const [timePickerIndex, setTimePickerIndex] = useState(0);
 
-	// Selected Frequency/Duration සඳහා වෙනම state අවශ්‍ය නෑ, form state එකෙන්ම ගන්න පුළුවන්
-	// const [selectedFrequency, setSelectedFrequency] = useState("");
-	// const [selectedDuration, setSelectedDuration] = useState("");
-
 	useEffect(() => {
-		console.log(medicationId)
 		if (medicationId) {
 			const medicationToUpdate = medications.find((m) => m.id === medicationId);
-			
 			if (medicationToUpdate) {
 				setForm({
 					...medicationToUpdate,
@@ -144,67 +137,69 @@ const Update = () => {
 
 	if (!form) {
 		return (
-			<View style={styles.loadingContainer}>
+			<View>
 				<ActivityIndicator size="large" color="#FFFFFF" />
-				<Text style={styles.loadingText}>Loading medication details...</Text>
+				<Text>Loading medication details...</Text>
 			</View>
 		);
 	}
 
 	return (
-		<View style={styles.flex1}>
+		<View className="flex-1 bg-[#f8f9fa]">
 			<View
-				style={[
-					styles.headerBackground,
-					{ height: Platform.OS === "ios" ? 140 : 120 },
-				]}
-			/>
-			<SafeAreaView style={styles.flex1}>
-				<View style={styles.header}>
+				className="bg-[#1976D2] absolute top-0 left-0 right-0"
+				style={{ height: Platform.OS === "ios" ? 140 : 120 }}
+			></View>
+
+			<SafeAreaView
+				className="flex-1"
+				style={{ height: Platform.OS === "ios" ? 50 : 30 }}
+			>
+				{/* Header Information */}
+				<View className="flex-row items-center px-5 pb-5 z-[1] pt-2">
 					<TouchableOpacity
-						style={styles.backButton}
+						className="w-10 h-10 rounded-[20px] bg-white justify-center items-center"
+						style={style.buttonShadow}
 						onPress={() => router.back()}
 					>
-						<Ionicons name="chevron-back" size={28} color="#1976D2" />
+						<Ionicons name="chevron-back" size={28} color={"#1976D2"} />
 					</TouchableOpacity>
-					<Text style={styles.headerTitle}>Update Medication</Text>
+					<Text className="text-[28px] font-Outfit-Bold text-white ml-4">
+						Update Medication
+					</Text>
 				</View>
 
-				<ScrollView
-					showsVerticalScrollIndicator={false}
-					contentContainerStyle={styles.scrollContent}
-				>
+				<ScrollView showsVerticalScrollIndicator={false} className="flex-1 p-5">
 					{/* Medication Name (Read-only) */}
-					<View style={styles.inputContainer}>
+					<View style={style.inputContainer}>
 						<TextInput
-							style={[styles.mainInput, styles.disabledInput]}
+							style={[style.mainInput]}
 							value={form.name}
 							editable={false}
 						/>
 					</View>
 
 					{/* Dosage */}
-					<View style={styles.inputContainer}>
+					<View style={style.inputContainer}>
 						<TextInput
-							style={[
-								styles.mainInput,
-								errors.dosage ? styles.inputError : null,
-							]}
+							style={[style.mainInput, errors.dosage ? style.inputError : null]}
 							placeholder="Dosage (e.g., 500mg)"
 							value={form.dosage}
 							onChangeText={(text) => setForm({ ...form, dosage: text })}
 						/>
 					</View>
 
-					{/* How Often? */}
-					<Text style={styles.sectionTitle}>How often?</Text>
-					<View style={styles.optionsGrid}>
+					{/* Schedule */}
+					<Text className="text-lg font-Outfit-Bold text-[#1a1a1a] mb-4">
+						How often?
+					</Text>
+					<View style={style.optionsGrid}>
 						{FREQUENCIES.map((freq) => (
 							<TouchableOpacity
 								key={freq.id}
 								style={[
-									styles.optionCard,
-									form.frequency === freq.label && styles.selectedOptionCard,
+									style.optionCard,
+									form.frequency === freq.label && style.selectedOptionCard,
 								]}
 								onPress={() =>
 									setForm({ ...form, frequency: freq.label, times: freq.times })
@@ -212,8 +207,8 @@ const Update = () => {
 							>
 								<View
 									style={[
-										styles.optionIcon,
-										form.frequency === freq.label && styles.selectedOptionIcon,
+										style.optionIcon,
+										form.frequency === freq.label && style.selectedOptionIcon,
 									]}
 								>
 									<Ionicons
@@ -224,8 +219,8 @@ const Update = () => {
 								</View>
 								<Text
 									style={[
-										styles.optionLabel,
-										form.frequency === freq.label && styles.selectedOptionLabel,
+										style.optionLabel,
+										form.frequency === freq.label && style.selectedOptionLabel,
 									]}
 								>
 									{freq.label}
@@ -235,30 +230,31 @@ const Update = () => {
 					</View>
 
 					{/* How Long? */}
-					<Text style={styles.sectionTitle}>For how long?</Text>
-					<View style={styles.optionsGrid}>
+					<Text className="text-lg font-Outfit-Bold text-[#1a1a1a] mb-4">
+						For how long?
+					</Text>
+					<View style={style.optionsGrid}>
 						{DURATIONS.map((dur) => (
 							<TouchableOpacity
 								key={dur.id}
 								style={[
-									styles.optionCard,
-									form.duration === dur.label && styles.selectedOptionCard,
+									style.optionCard,
+									form.duration === dur.label && style.selectedOptionCard,
 								]}
 								onPress={() => setForm({ ...form, duration: dur.label })}
 							>
 								<Text
 									style={[
-										styles.durationNumber,
-										form.duration === dur.label &&
-											styles.selectedDurationNumber,
+										style.durationNumber,
+										form.duration === dur.label && style.selectedDurationNumber,
 									]}
 								>
 									{dur.value > 0 ? dur.value : "∞"}
 								</Text>
 								<Text
 									style={[
-										styles.optionLabel,
-										form.duration === dur.label && styles.selectedOptionLabel,
+										style.optionLabel,
+										form.duration === dur.label && style.selectedOptionLabel,
 									]}
 								>
 									{dur.label}
@@ -269,7 +265,7 @@ const Update = () => {
 
 					{/* Start Date */}
 					<TouchableOpacity
-						style={styles.dateButton}
+						style={style.dateButton}
 						onPress={() => setShowDatePicker(true)}
 					>
 						<Ionicons
@@ -299,7 +295,7 @@ const Update = () => {
 							{form.times.map((time, index) => (
 								<TouchableOpacity
 									key={index}
-									style={styles.timeButton}
+									style={style.timeButton}
 									onPress={() => {
 										setTimePickerIndex(index);
 										setShowTimePicker(true);
@@ -351,24 +347,31 @@ const Update = () => {
 
 					{/* Reminders & Notes... */}
 				</ScrollView>
-				<View style={styles.footer}>
+
+				<View className=" p-5 bg-white border-t border-t-[#e0e0e0]">
 					<TouchableOpacity
-						style={[styles.button, styles.updateButton]}
+						className={`rounded-lg mb-3 bg-[#1976D2] py-4 flex-row items-center justify-center ${loading ? "opacity-70" : ""}`}
 						onPress={handleUpdate}
 						disabled={loading}
 					>
 						{loading ? (
-							<ActivityIndicator color="white" />
+							<ActivityIndicator
+								size="small"
+								color="white"
+								style={{ marginRight: 12 }}
+							/>
 						) : (
-							<Text style={styles.buttonText}>Update Medication</Text>
+							<Text className="text-white font-Outfit-Bold text-lg">
+								Update Medication
+							</Text>
 						)}
 					</TouchableOpacity>
 					<TouchableOpacity
-						style={[styles.button, styles.cancelButton]}
+						className="py-4 rounded-lg border border-[#e0e0e0] justify-center items-center bg-white"
 						onPress={() => router.back()}
 						disabled={loading}
 					>
-						<Text style={styles.cancelButtonText}>Cancel</Text>
+						<Text className="text-[#666] font-Outfit-Bold text-lg">Cancel</Text>
 					</TouchableOpacity>
 				</View>
 			</SafeAreaView>
@@ -376,85 +379,104 @@ const Update = () => {
 	);
 };
 
-const styles = StyleSheet.create({
-	flex1: { flex: 1, backgroundColor: "#f8f9fa" },
-	loadingContainer: {
-		flex: 1,
-		justifyContent: "center",
-		alignItems: "center",
-		backgroundColor: "#f8f9fa",
-	},
-	loadingText: { marginTop: 10, fontSize: 16, color: "#333" },
-	headerBackground: {
-		backgroundColor: "#1976D2",
-		position: "absolute",
-		top: 0,
-		left: 0,
-		right: 0,
-	},
-	header: {
-		flexDirection: "row",
-		alignItems: "center",
-		paddingHorizontal: 20,
-		paddingBottom: 20,
-		paddingTop: 10,
-	},
-	backButton: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
-		backgroundColor: "white",
-		justifyContent: "center",
-		alignItems: "center",
+const style = StyleSheet.create({
+	buttonShadow: {
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.1,
+		shadowRadius: 4,
 		elevation: 3,
 	},
-	headerTitle: {
-		fontSize: 28,
-		fontFamily: "Outfit-Bold",
-		color: "white",
-		marginLeft: 16,
+	card: {
+		backgroundColor: "white",
+		borderRadius: 16,
+		padding: 15,
+		borderWidth: 1,
+		borderColor: "#e0e0e0",
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.05,
+		shadowRadius: 8,
+		elevation: 2,
 	},
-	scrollContent: { padding: 20 },
 	inputContainer: {
 		backgroundColor: "white",
 		borderRadius: 16,
 		marginBottom: 12,
 		borderWidth: 1,
+		padding: 15,
 		borderColor: "#e0e0e0",
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.05,
+		shadowRadius: 8,
 		elevation: 2,
-		padding: 10,
 	},
 	mainInput: {
-		fontSize: 18,
-		fontFamily: "Outfit-Regular",
-		paddingHorizontal: 10,
+		fontSize: 20,
+		color: "#333",
 	},
-	disabledInput: { backgroundColor: "#f0f0f0", color: "#888" },
-	inputError: { borderColor: "#FF5252" },
-	sectionTitle: {
-		fontSize: 18,
-		fontFamily: "Outfit-Bold",
-		color: "#1a1a1a",
-		marginBottom: 10,
+	inputError: {
+		borderColor: "#FF5252",
+	},
+	errorText: {
+		color: "#ff5252",
+		fontSize: 12,
+		fontFamily: "Outfit-Regular",
+		marginTop: 5,
+	},
+	dateButton: {
+		flexDirection: "row",
+		alignItems: "center",
+		backgroundColor: "white",
+		borderRadius: 16,
+		padding: 15,
 		marginTop: 15,
+		borderWidth: 1,
+		borderColor: "#e0e0e0",
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.05,
+		shadowRadius: 8,
+		elevation: 2,
+		marginBottom: 10,
 	},
 	optionsGrid: {
 		flexDirection: "row",
 		flexWrap: "wrap",
-		justifyContent: "space-between",
+		marginHorizontal: -5,
+		marginTop: 5,
 	},
 	optionCard: {
-		width: (width - 50) / 2,
+		width: (width - 60) / 2,
 		backgroundColor: "white",
 		borderRadius: 16,
 		padding: 15,
-		marginBottom: 10,
+		margin: 5,
 		alignItems: "center",
 		borderWidth: 1,
 		borderColor: "#e0e0e0",
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.05,
+		shadowRadius: 8,
 		elevation: 2,
 	},
-	selectedOptionCard: { borderColor: "#1976D2", backgroundColor: "#2196F3" },
+	selectedOptionCard: {
+		borderColor: "#1976D2",
+		backgroundColor: "#2196F3",
+	},
+	textAreaContainer: {
+		backgroundColor: "white",
+		borderRadius: 16,
+		borderWidth: 1,
+		borderColor: "#e0e0e0",
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.05,
+		shadowRadius: 8,
+		elevation: 2,
+	},
 	optionIcon: {
 		width: 50,
 		height: 50,
@@ -464,31 +486,29 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		marginBottom: 10,
 	},
-	selectedOptionIcon: { backgroundColor: "rgba(255, 255, 255, 0.2)" },
+	selectedOptionIcon: {
+		backgroundColor: "rgba(255, 255, 255, 0.2)",
+	},
 	optionLabel: {
 		fontSize: 14,
-		fontFamily: "Outfit-SemiBold",
+		fontWeight: "600",
 		color: "#333",
 		textAlign: "center",
 	},
-	selectedOptionLabel: { color: "white" },
+	selectedOptionLabel: {
+		color: "white",
+	},
 	durationNumber: {
 		fontSize: 24,
-		fontFamily: "Outfit-Bold",
-		color: "#1976D2",
+		fontWeight: "700",
+		color: "#1a8e2d",
 		marginBottom: 5,
 	},
-	selectedDurationNumber: { color: "white" },
-	dateButton: {
-		flexDirection: "row",
-		alignItems: "center",
-		backgroundColor: "white",
-		borderRadius: 16,
-		padding: 15,
-		marginTop: 15,
-		elevation: 2,
-		borderWidth: 1,
-		borderColor: "#e0e0e0",
+	selectedDurationNumber: {
+		color: "white",
+	},
+	timesContainer: {
+		marginTop: 20,
 	},
 	timeButton: {
 		flexDirection: "row",
@@ -497,21 +517,29 @@ const styles = StyleSheet.create({
 		borderRadius: 16,
 		padding: 15,
 		marginBottom: 10,
-		elevation: 2,
 		borderWidth: 1,
 		borderColor: "#e0e0e0",
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.05,
+		shadowRadius: 8,
+		elevation: 2,
 	},
-	footer: {
-		padding: 20,
-		backgroundColor: "white",
-		borderTopWidth: 1,
-		borderColor: "#e0e0e0",
+	timeIconContainer: {
+		width: 40,
+		height: 40,
+		borderRadius: 20,
+		backgroundColor: "#f5f5f5",
+		justifyContent: "center",
+		alignItems: "center",
+		marginRight: 10,
 	},
-	button: { paddingVertical: 15, borderRadius: 12, alignItems: "center" },
-	updateButton: { backgroundColor: "#1976D2", marginBottom: 10 },
-	buttonText: { color: "white", fontSize: 18, fontFamily: "Outfit-Bold" },
-	cancelButton: { borderWidth: 1, borderColor: "#e0e0e0" },
-	cancelButtonText: { color: "#666", fontSize: 18, fontFamily: "Outfit-Bold" },
+	timeButtonText: {
+		flex: 1,
+		fontSize: 16,
+		fontFamily: "Outfit-Regular",
+		color: "#333",
+	},
 });
 
-export default Update;
+export default UpdateMedicationPage;
