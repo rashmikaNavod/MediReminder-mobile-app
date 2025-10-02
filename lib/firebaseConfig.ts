@@ -2,12 +2,12 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-	apiKey: "AIzaSyBUnoJ5DcNSp0n6sDxWCNtO1RIVCbH5q7M",
-	authDomain: "medreminder-24a73.firebaseapp.com",
-	projectId: "medreminder-24a73",
-	storageBucket: "medreminder-24a73.firebasestorage.app",
-	messagingSenderId: "648525372716",
-	appId: "1:648525372716:web:989ab6868e37919d176089",
+	apiKey: process.env.EXPO_PUBLIC_API_KEY,
+	authDomain: process.env.EXPO_PUBLIC_AUTH_DOMAIN,
+	projectId: process.env.EXPO_PUBLIC_PROJECT_ID,
+	storageBucket: process.env.EXPO_PUBLIC_STORAGE_BUCKET,
+	messagingSenderId: process.env.EXPO_PUBLIC_MESSAGING_SENDER_ID,
+	appId: process.env.EXPO_PUBLIC_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);

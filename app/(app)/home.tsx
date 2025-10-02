@@ -28,10 +28,23 @@ const DURATIONS = [
 	{ id: "5", label: "Ongoing", value: -1 },
 ];
 
-import { registerForPushNotificationsAsync } from "@/lib/notification";
+import {
+	registerForPushNotificationsAsync,
+	cancelAllAppReminders,
+} from "@/lib/notification";
 import { Medication } from "@/types/Medication";
 
 const { width } = Dimensions.get("window");
+
+const getTodaysDateString = () => {
+	const today = new Date();
+	const year = today.getFullYear();
+	const month = String(today.getMonth() + 1).padStart(2, "0");
+	const day = String(today.getDate()).padStart(2, "0");
+	return `${year}-${month}-${day}`;
+};
+
+const todayString = getTodaysDateString();
 
 const HomeScreen = () => {
 	const { user } = useUser();
@@ -41,43 +54,47 @@ const HomeScreen = () => {
 
 	const { fetchMedication, medications } = useMedicationStore();
 	const [todaysMedications, setTodaysMedications] = useState<Medication[]>([]);
-	const [completedDoses, setCompletedDoses] = useState(0);
 
+	useEffect(() => {
+		if (userId) {
+			fetchMedication(userId);
+		}
+	}, [userId]);
 
-
-	const handleHomePage = () => {
+	useEffect(() => {
 		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+
 		const todayMed = medications.filter((med) => {
 			const startDate = new Date(med.startDate);
+			startDate.setHours(0, 0, 0, 0);
+
 			const durationInfo = DURATIONS.find((d) => d.label === med.duration);
-			if(durationInfo?.value === undefined) return false;
-			if (
-				durationInfo.value === -1 ||
-				(today >= startDate && today <= new Date(startDate.getTime() + durationInfo.value * 24 * 60 * 60 * 1000))
-			) {
+			if (durationInfo?.value === undefined) return false;
+
+			if (durationInfo.value === -1) {
+				return startDate <= today;
+			}
+
+			const endDate = new Date(
+				startDate.getTime() + (durationInfo.value - 1) * 24 * 60 * 60 * 1000
+			);
+			endDate.setHours(23, 59, 59, 999);
+
+			if (today >= startDate && today <= endDate) {
 				return true;
 			}
+
 			return false;
 		});
 
 		setTodaysMedications(todayMed);
-		// setCompletedDoses(todayMed.filter((m) => m.taken)?.length || 0);
-	};
-
-	useEffect(() => {
-		if (userId) {
-			fetchMedication(userId).then(() => {
-				handleHomePage();
-			});
-		}
-	}, [userId, medications]);
-
-	
-
+	}, [medications]);
 
 	const toggleMenu = () => {
 		setMenuVisible(!isMenuVisible);
 	};
+
 	const handleSignOut = () => {
 		toggleMenu();
 		signOut();
@@ -86,6 +103,44 @@ const HomeScreen = () => {
 	useEffect(() => {
 		registerForPushNotificationsAsync();
 	}, []);
+
+	const totalDoses = todaysMedications.reduce(
+		(sum, med) => sum + med.times.length,
+		0
+	);
+
+	const completedDoses = todaysMedications.reduce((sum, med) => {
+		const takenToday = med.takenHistory?.[todayString] || [];
+		return sum + takenToday.length;
+	}, 0);
+
+	const progress = totalDoses > 0 ? completedDoses / totalDoses : 0;
+
+	const missedMedication = todaysMedications.reduce((acc, med) => {
+		const now = new Date();
+		const takenToday = med.takenHistory?.[todayString] || [];
+
+		const missedTimes = med.times.filter((time) => {
+			const [hours, minutes] = time.split(":").map(Number);
+			const doseTime = new Date();
+			doseTime.setHours(hours, minutes, 0, 0);
+			return now > doseTime && !takenToday.includes(time);
+		});
+
+		if (missedTimes.length > 0) {
+			acc.push({
+				...med,
+				times: missedTimes,
+			});
+		}
+
+		return acc;
+	}, [] as Medication[]);
+
+	const notificationCount = missedMedication.reduce(
+		(sum, med) => sum + med.times.length,
+		0
+	);
 
 	return (
 		<View className="flex-1 bg-[#f8f9fa] relative">
@@ -97,61 +152,69 @@ const HomeScreen = () => {
 								Daily Progress
 							</Text>
 						</View>
-						<TouchableOpacity
-							className="relative p-2 bg-[rgba(255,255,255,0.3)] rounded-full ml-3"
-							onPress={() => {
-								setShowNotifications(true);
-							}}
-						>
-							<Ionicons name="notifications-outline" size={24} color="white" />
-							<View className="absolute -top-1 -right-1 bg-red-600 rounded-full h-5 min-w-5 px-1 items-center justify-center">
-								<Text
-									numberOfLines={1}
-									className="text-[11px] font-Outfit-SemiBold text-white leading-[13px] text-center"
-								>
-									{todaysMedications.length}
-								</Text>
-							</View>
-						</TouchableOpacity>
+						<View className="flex-row gap-2 items-center">
+							<TouchableOpacity
+								className="relative p-2 bg-[rgba(255,255,255,0.3)] w-11 h-11 rounded-full items-center justify-center"
+								onPress={() => {
+									setShowNotifications(true);
+								}}
+							>
+								<Ionicons
+									name="notifications-outline"
+									size={24}
+									color="white"
+								/>
+								{missedMedication.length > 0 && (
+									<View className="absolute -top-1 -right-1 bg-red-600 rounded-full h-5 min-w-5 px-1 items-center justify-center">
+										<Text
+											numberOfLines={1}
+											className="text-[11px] font-Outfit-SemiBold text-white leading-[13px] text-center"
+										>
+											{notificationCount}
+										</Text>
+									</View>
+								)}
+							</TouchableOpacity>
+
+							<TouchableOpacity
+								className="w-11 h-11 rounded-full overflow-hidden"
+								onPress={toggleMenu}
+							>
+								{user?.imageUrl && (
+									<Image
+										source={{ uri: user.imageUrl }}
+										className="w-full h-full"
+									/>
+								)}
+							</TouchableOpacity>
+						</View>
 					</View>
 
 					<CircularProgress
-						progress={
-							0.7
-						}
-						totalDoses={todaysMedications.length}
-						completedDoses={3}
+						progress={progress}
+						totalDoses={totalDoses}
+						completedDoses={completedDoses}
 						width={width}
 					/>
 				</View>
 
 				<QuickAction />
 
-				<TodaySchedule medications={todaysMedications}/>
+				<TodaySchedule medications={todaysMedications} />
 
 				<NotificationModal
 					visible={showNotifications}
 					onClose={() => setShowNotifications(false)}
+					medi={missedMedication}
 				/>
 			</ScrollView>
-
-			<TouchableOpacity
-				className="absolute bottom-8 right-6 z-50"
-				onPress={toggleMenu}
-			>
-				{user?.imageUrl && (
-					<Image
-						source={{ uri: user.imageUrl }}
-						className="w-20 aspect-square rounded-full"
-					/>
-				)}
-			</TouchableOpacity>
 
 			<UserMenuModal
 				visible={isMenuVisible}
 				onClose={toggleMenu}
 				user={user}
 				onSignOut={handleSignOut}
+				clearAllReminder={cancelAllAppReminders}
 			/>
 		</View>
 	);

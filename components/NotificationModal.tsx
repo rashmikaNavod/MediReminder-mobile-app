@@ -10,13 +10,19 @@ import {
 	Modal,
 	StyleSheet,
 } from "react-native";
+import { Medication } from "@/types/Medication";
 
 interface NotificationModalProps {
 	visible: boolean;
 	onClose: () => void;
+	medi: Medication[];
 }
 
-const NotificationModal = ({ visible, onClose }: NotificationModalProps) => {
+const NotificationModal = ({
+	visible,
+	onClose,
+	medi,
+}: NotificationModalProps) => {
 	return (
 		<Modal
 			visible={visible}
@@ -34,22 +40,32 @@ const NotificationModal = ({ visible, onClose }: NotificationModalProps) => {
 							<Ionicons name="close" size={25} color="#333" />
 						</TouchableOpacity>
 					</View>
+					{medi.map((medication) => (
+						<View
+							key={medication.id}
+							className="flex-row p-4 rounded-xl bg-[#f5f5f5] mb-3"
+						>
+							<View
+								style={{ backgroundColor: `${medication.color}15` }}
+								className={`w-10 h-10 rounded-3xl justify-center items-center mr-4`}
+							>
+								<Ionicons name="medical" size={24} color={medication.color} />
+							</View>
+							<View className="flex-1">
+								<Text className="font-Outfit-SemiBold text-base text-[#333] mb-1">
+									{medication.name}
+								</Text>
+								<Text className="text-[14px] text-[#666] mb-4">
+									{medication.dosage}
+								</Text>
+								<Text className="text-[12px] text-[#999] ">
+									{medication.times.join(', ')}
+								</Text>
+							</View>
+						</View>
+					))}
 				</View>
 			</View>
-			{[].map((medication) => (
-				<View className="flex-row p-4 rounded-xl bg-[#f5f5f5] mb-3">
-					<View className="w-10 h-10 rounded-3xl bg-[#e8f5e9] justify-center items-center mr-4">
-						<Ionicons name="medical" size={24} />
-					</View>
-					<View className="flex-1">
-						<Text className="font-Outfit-SemiBold text-base text-[#333] mb-1">
-							MEDI name
-						</Text>
-						<Text className="text-[14px] text-[#666] mb-4">MEDI dosage</Text>
-						<Text className="text-[12px] text-[#999] ">MEDI time</Text>
-					</View>
-				</View>
-			))}
 		</Modal>
 	);
 };

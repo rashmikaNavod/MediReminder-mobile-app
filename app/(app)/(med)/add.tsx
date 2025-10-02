@@ -378,7 +378,9 @@ const add = () => {
 							<DateTimePicker
 								mode="time"
 								value={(() => {
-									const [hours, minutes] = form.times[0].split(":").map(Number);
+									const [hours, minutes] = (form.times[0] || "09:00")
+										.split(":")
+										.map(Number);
 									const date = new Date();
 									date.setHours(hours, minutes, 0, 0);
 									return date;

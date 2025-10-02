@@ -1,5 +1,5 @@
 import * as Notifications from "expo-notifications";
-import { Platform } from "react-native";
+import { Alert, Platform } from "react-native";
 import type { Medication } from "@/types/Medication";
 
 //This array is needed to find the numeric value of the duration
@@ -120,7 +120,7 @@ export const scheduleMedicationReminder = async (medication: Medication) => {
 
 			if (triggerDate > new Date()) {
 				await Notifications.scheduleNotificationAsync({
-					identifier: `med-reminder-${medication.id}-${index}`,
+					identifier: `med-reminder-${medication.id}-${dayIndex}-${index}`,
 					content: {
 						title: "💊 බෙහෙත් වෙලාව!",
 						body: `ඔබේ ${medication.name} (${medication.dosage}) ලබා ගැනීමට කාලයයි.`,
@@ -162,5 +162,16 @@ export const cancelMedicationReminders = async (medicationId: string) => {
 		);
 	} catch (error) {
 		console.error("Failed to cancel notifications:", error);
+	}
+};
+
+export const cancelAllAppReminders = async () => {
+	try {
+		await Notifications.cancelAllScheduledNotificationsAsync();
+		console.log("All scheduled notifications have been cancelled.");
+		Alert.alert("Success", "All reminders have been cleared.");
+	} catch (error) {
+		console.error("Failed to cancel all notifications:", error);
+		Alert.alert("Error", "Could not clear reminders.");
 	}
 };

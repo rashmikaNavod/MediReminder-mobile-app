@@ -54,6 +54,7 @@ const FREQUENCIES = [
 	},
 	{ id: "5", label: "As needed", icon: "calendar-outline" as const, times: [] },
 ];
+
 const DURATIONS = [
 	{ id: "1", label: "7 days", value: 7 },
 	{ id: "2", label: "14 days", value: 14 },
@@ -107,10 +108,10 @@ const UpdateMedicationPage = () => {
 
 		try {
 			// Prepare data for Firestore
-			const { id, name, ...dataToUpdate } = form; // id සහ name අයින් කරගන්නවා
+			const { id, name, ...dataToUpdate } = form;
 			const medicationDataForFirebase = {
 				...dataToUpdate,
-				startDate: form.startDate.toISOString(), // Date object එක string කරනවා
+				startDate: form.startDate.toISOString(),
 			};
 
 			const updatedMed = await updateMedication(
@@ -190,162 +191,212 @@ const UpdateMedicationPage = () => {
 					</View>
 
 					{/* Schedule */}
-					<Text className="text-lg font-Outfit-Bold text-[#1a1a1a] mb-4">
-						How often?
-					</Text>
-					<View style={style.optionsGrid}>
-						{FREQUENCIES.map((freq) => (
-							<TouchableOpacity
-								key={freq.id}
-								style={[
-									style.optionCard,
-									form.frequency === freq.label && style.selectedOptionCard,
-								]}
-								onPress={() =>
-									setForm({ ...form, frequency: freq.label, times: freq.times })
-								}
-							>
-								<View
-									style={[
-										style.optionIcon,
-										form.frequency === freq.label && style.selectedOptionIcon,
-									]}
-								>
-									<Ionicons
-										name={freq.icon}
-										size={24}
-										color={form.frequency === freq.label ? "white" : "#666"}
-									/>
-								</View>
-								<Text
-									style={[
-										style.optionLabel,
-										form.frequency === freq.label && style.selectedOptionLabel,
-									]}
-								>
-									{freq.label}
-								</Text>
-							</TouchableOpacity>
-						))}
-					</View>
-
-					{/* How Long? */}
-					<Text className="text-lg font-Outfit-Bold text-[#1a1a1a] mb-4">
-						For how long?
-					</Text>
-					<View style={style.optionsGrid}>
-						{DURATIONS.map((dur) => (
-							<TouchableOpacity
-								key={dur.id}
-								style={[
-									style.optionCard,
-									form.duration === dur.label && style.selectedOptionCard,
-								]}
-								onPress={() => setForm({ ...form, duration: dur.label })}
-							>
-								<Text
-									style={[
-										style.durationNumber,
-										form.duration === dur.label && style.selectedDurationNumber,
-									]}
-								>
-									{dur.value > 0 ? dur.value : "∞"}
-								</Text>
-								<Text
-									style={[
-										style.optionLabel,
-										form.duration === dur.label && style.selectedOptionLabel,
-									]}
-								>
-									{dur.label}
-								</Text>
-							</TouchableOpacity>
-						))}
-					</View>
-
-					{/* Start Date */}
-					<TouchableOpacity
-						style={style.dateButton}
-						onPress={() => setShowDatePicker(true)}
-					>
-						<Ionicons
-							name="calendar"
-							size={20}
-							color="#1976D2"
-							style={{ marginRight: 10 }}
-						/>
-						<Text>Starts: {form.startDate.toLocaleDateString()}</Text>
-					</TouchableOpacity>
-					{showDatePicker && (
-						<DateTimePicker
-							mode="date"
-							value={form.startDate}
-							onChange={(event, date) => {
-								setShowDatePicker(false);
-								if (date) {
-									setForm({ ...form, startDate: date });
-								}
-							}}
-						/>
-					)}
-
-					{/* Medication Times */}
-					{form.frequency && form.frequency !== "As needed" && (
-						<View style={{ marginTop: 15 }}>
-							{form.times.map((time, index) => (
+					<View className="mb-[25px]">
+						<Text className="text-lg font-Outfit-Bold text-[#1a1a1a] mb-4">
+							How often?
+						</Text>
+						<View style={style.optionsGrid}>
+							{FREQUENCIES.map((freq) => (
 								<TouchableOpacity
-									key={index}
-									style={style.timeButton}
-									onPress={() => {
-										setTimePickerIndex(index);
-										setShowTimePicker(true);
-									}}
+									key={freq.id}
+									style={[
+										style.optionCard,
+										form.frequency === freq.label && style.selectedOptionCard,
+									]}
+									onPress={() =>
+										setForm({
+											...form,
+											frequency: freq.label,
+											times: freq.times,
+										})
+									}
 								>
-									<Ionicons
-										name="time-outline"
-										size={20}
-										color="#1976D2"
-										style={{ marginRight: 10 }}
-									/>
-									<Text>{time}</Text>
+									<View
+										style={[
+											style.optionIcon,
+											form.frequency === freq.label && style.selectedOptionIcon,
+										]}
+									>
+										<Ionicons
+											name={freq.icon}
+											size={24}
+											color={form.frequency === freq.label ? "white" : "#666"}
+										/>
+									</View>
+									<Text
+										style={[
+											style.optionLabel,
+											form.frequency === freq.label &&
+												style.selectedOptionLabel,
+										]}
+									>
+										{freq.label}
+									</Text>
 								</TouchableOpacity>
 							))}
 						</View>
-					)}
 
-					{showTimePicker && (
-						<DateTimePicker
-							mode="time"
-							value={(() => {
-								const [h, m] = (form.times[timePickerIndex] || "00:00")
-									.split(":")
-									.map(Number);
-								const d = new Date();
-								d.setHours(h, m);
-								return d;
-							})()}
-							onChange={(event, date) => {
-								setShowTimePicker(false);
-								if (date) {
-									const newTime = date.toLocaleTimeString("en-GB", {
-										hour: "2-digit",
-										minute: "2-digit",
-									});
-									setForm((prev) => {
-										if (!prev) return null;
-										return {
-											...prev,
-											times: prev.times.map((time, index) =>
-												index === timePickerIndex ? newTime : time
-											),
-										};
-									});
-								}
-							}}
-						/>
-					)}
+						<Text className="text-lg font-Outfit-Bold text-[#1a1a1a] mb-4">
+							For how long?
+						</Text>
+						<View style={style.optionsGrid}>
+							{DURATIONS.map((dur) => (
+								<TouchableOpacity
+									key={dur.id}
+									style={[
+										style.optionCard,
+										form.duration === dur.label && style.selectedOptionCard,
+									]}
+									onPress={() => setForm({ ...form, duration: dur.label })}
+								>
+									<Text
+										style={[
+											style.durationNumber,
+											form.duration === dur.label &&
+												style.selectedDurationNumber,
+										]}
+									>
+										{dur.value > 0 ? dur.value : "∞"}
+									</Text>
+									<Text
+										style={[
+											style.optionLabel,
+											form.duration === dur.label && style.selectedOptionLabel,
+										]}
+									>
+										{dur.label}
+									</Text>
+								</TouchableOpacity>
+							))}
+						</View>
 
-					{/* Reminders & Notes... */}
+						{/* Start Date */}
+						<TouchableOpacity
+							style={style.dateButton}
+							onPress={() => setShowDatePicker(true)}
+						>
+							<Ionicons
+								name="calendar"
+								size={20}
+								color="#1976D2"
+								style={{ marginRight: 10 }}
+							/>
+							<Text>Starts: {form.startDate.toLocaleDateString()}</Text>
+						</TouchableOpacity>
+						{showDatePicker && (
+							<DateTimePicker
+								mode="date"
+								value={form.startDate}
+								onChange={(event, date) => {
+									setShowDatePicker(false);
+									if (date) {
+										setForm({ ...form, startDate: date });
+									}
+								}}
+							/>
+						)}
+
+						{/* Medication Times */}
+						{form.frequency && form.frequency !== "As needed" && (
+							<View style={{ marginTop: 15 }}>
+								{form.times.map((time, index) => (
+									<TouchableOpacity
+										key={index}
+										style={style.timeButton}
+										onPress={() => {
+											setTimePickerIndex(index);
+											setShowTimePicker(true);
+										}}
+									>
+										<Ionicons
+											name="time-outline"
+											size={20}
+											color="#1976D2"
+											style={{ marginRight: 10 }}
+										/>
+										<Text>{time}</Text>
+									</TouchableOpacity>
+								))}
+							</View>
+						)}
+
+						{showTimePicker && (
+							<DateTimePicker
+								mode="time"
+								value={(() => {
+									const [h, m] = (form.times[timePickerIndex] || "00:00")
+										.split(":")
+										.map(Number);
+									const d = new Date();
+									d.setHours(h, m);
+									return d;
+								})()}
+								onChange={(event, date) => {
+									setShowTimePicker(false);
+									if (date) {
+										const newTime = date.toLocaleTimeString("default", {
+											hour: "2-digit",
+											minute: "2-digit",
+										});
+										setForm((prev) => {
+											if (!prev) return null;
+											return {
+												...prev,
+												times: prev.times.map((time, index) =>
+													index === timePickerIndex ? newTime : time
+												),
+											};
+										});
+									}
+								}}
+							/>
+						)}
+					</View>
+
+					{/* Reminder */}
+					<View className="mb-[25px]">
+						<View style={style.card}>
+							<View className="flex-row items-center">
+								<View className="w-10 h-10 rounded-2xl bg-[#f5f5f5] items-center justify-center mr-3">
+									<Ionicons size={20} name="notifications" color={"#1a8e2d"} />
+								</View>
+
+								<View className="flex-1">
+									<Text className="font-Outfit-SemiBold text-lg text-[#333]">
+										Reminders
+									</Text>
+									<Text className="font-Outfit-Regular text-base text-[#666] mt-[2px]">
+										Get notified when its time to take your medications
+									</Text>
+								</View>
+
+								<Switch
+									trackColor={{ false: "#ddd", true: "#1976D2" }}
+									thumbColor={"white"}
+									value={form.reminderEnabled}
+									onValueChange={(value) =>
+										setForm({ ...form, reminderEnabled: value })
+									}
+								/>
+							</View>
+						</View>
+					</View>
+
+					{/* Notes */}
+					<View className="mb-[25px]">
+						<View style={style.textAreaContainer}>
+							<TextInput
+								className="h-[100px] p-3 text-[#333] font-Outfit-Regular text-base"
+								placeholder="Add notes or special instructions..."
+								placeholderTextColor="#999"
+								value={form.notes}
+								onChangeText={(text) => setForm({ ...form, notes: text })}
+								multiline
+								numberOfLines={4}
+								textAlignVertical="top"
+							/>
+						</View>
+					</View>
 				</ScrollView>
 
 				<View className=" p-5 bg-white border-t border-t-[#e0e0e0]">

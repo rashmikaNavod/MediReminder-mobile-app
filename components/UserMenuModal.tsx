@@ -14,6 +14,7 @@ interface UserMenuModalProps {
 	visible?: boolean;
 	onClose?: () => void;
 	onSignOut?: () => void;
+	clearAllReminder?: () => void;
 	user?: UserResource | null | undefined;
 }
 
@@ -21,6 +22,7 @@ const UserMenuModal = ({
 	visible,
 	onClose,
 	onSignOut,
+	clearAllReminder,
 	user,
 }: UserMenuModalProps) => {
 	return (
@@ -60,9 +62,20 @@ const UserMenuModal = ({
 							Manage Account
 						</Text>
 					</TouchableOpacity>
+
+					<TouchableOpacity
+						onPress={clearAllReminder}
+						className="flex-row items-center p-4 border-b border-gray-300"
+					>
+						<Ionicons name="trash-bin-outline" size={23} color="#3F51B5" />
+						<Text className="ml-4 text-base font-Outfit-SemiBold text-[#666]">
+							Clear All Reminders
+						</Text>
+					</TouchableOpacity>
+
 					<TouchableOpacity
 						onPress={onSignOut}
-						className="flex-row items-center p-4"
+						className="flex-row items-center p-4 "
 					>
 						<Ionicons name="log-out-outline" size={25} color="#f44336" />
 						<Text className="ml-4 text-base font-Outfit-SemiBold text-red-600">
@@ -77,23 +90,3 @@ const UserMenuModal = ({
 
 const styles = StyleSheet.create({});
 export default UserMenuModal;
-
-// 		{/* Menu Options */}
-// 		<TouchableOpacity className="flex-row items-center p-4 border-b border-gray-200">
-// 			<Ionicons name="person-circle-outline" size={24} color="#3F51B5" />
-// 			<Text className="ml-4 text-base font-Outfit-Medium text-gray-700">
-// 				Manage Account
-// 			</Text>
-// 		</TouchableOpacity>
-
-// 		<TouchableOpacity
-// 			onPress={handleSignOut}
-// 			className="flex-row items-center p-4"
-// 		>
-// 			<Ionicons name="log-out-outline" size={24} color="#f44336" />
-// 			<Text className="ml-4 text-base font-Outfit-Medium text-red-600">
-// 				Sign Out
-// 			</Text>
-// 		</TouchableOpacity>
-// 	</View>
-// </Modal>; */}

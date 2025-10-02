@@ -7,5 +7,7 @@ export type Medication = {
 	startDate: string;
 	duration: string;
 	color: string;
+	notes?: string;
 	reminderEnabled: boolean;
+	takenHistory?: { [date: string]: string[] };
 };

@@ -25,6 +25,12 @@ interface MedicationState {
 		updatedData: Partial<Omit<Medication, "id">> // Partial to allow updating some fields
 	) => Promise<Medication | undefined>;
 	deleteMedication: (userId: string, medicationId: string) => Promise<void>;
+	takeDose: (
+		userId: string,
+		medication: Medication,
+		time: string,
+		dateString: string
+	) => Promise<void>;
 }
 
 export const useMedicationStore = create<MedicationState>((set, get) => ({
@@ -140,6 +146,36 @@ export const useMedicationStore = create<MedicationState>((set, get) => ({
 			console.error("Medication update unsuccessful:", error);
 			set({ loading: false, error: error.message });
 			throw error;
+		}
+	},
+
+	takeDose: async (userId, medication, time, dateString) => {
+		const medDocRef = doc(db, "users", userId, "medications", medication.id);
+
+		try {
+			const newTakenHistory = { ...medication.takenHistory };
+			const todaysTakenTimes = newTakenHistory[dateString] || [];
+
+			if (!todaysTakenTimes.includes(time)) {
+				const updatedTodaysTimes = [...todaysTakenTimes, time];
+
+				newTakenHistory[dateString] = updatedTodaysTimes;
+
+				await updateDoc(medDocRef, {
+					takenHistory: newTakenHistory,
+				});
+
+				set((state) => ({
+					medications: state.medications.map((med) =>
+						med.id === medication.id
+							? { ...med, takenHistory: newTakenHistory }
+							: med
+					),
+				}));
+			}
+		} catch (e) {
+			const error = e as Error;
+			console.error("Failed to mark dose as taken:", error);
 		}
 	},
 }));

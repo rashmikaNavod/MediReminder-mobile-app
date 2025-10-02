@@ -17,7 +17,7 @@ import { useAuth } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import { cancelMedicationReminders } from "@/lib/notification";
 
-const manageMedicationPage = () => {
+const ManageMedicationPage = () => {
 	const router = useRouter();
 	const { userId } = useAuth();
 	const { medications, deleteMedication, loading, fetchMedication } =
@@ -160,4 +160,4 @@ const style = StyleSheet.create({
 	},
 });
 
-export default manageMedicationPage;
+export default ManageMedicationPage;
